@@ -9,9 +9,13 @@ import UIKit
 
 extension Notification.Name {
     static let memoDidInsert = Notification.Name("memoDidInsert")
+    static let memoDidUpdate = Notification.Name("memoDidUpdate")
+    static let memoDidDelete = Notification.Name("memoDidDelete")
 }
 
 class ComposeViewController: UIViewController {
+    
+    var editTarget: MEMOEntity? // nil이면 쓰기, 아니면 편집
     
     @IBAction func closeVC(_ sender: Any) {
         dismiss(animated: true)
@@ -25,7 +29,12 @@ class ComposeViewController: UIViewController {
             return
         }
         
-        DataManager.shared.insertMemo(memo: text)
+        if let editTarget {
+            DataManager.shared.updateMemo(memo: editTarget, with: text)
+        } else {
+            DataManager.shared.insertMemo(memo: text)
+        }
+
         dismiss(animated: true)
     }
     
@@ -33,6 +42,13 @@ class ComposeViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        if let editTarget {
+            navigationItem.title = "편집"
+            contentTextView.text = editTarget.content
+        } else {
+            navigationItem.title = "새 메모"
+        }
         
         contentTextView.becomeFirstResponder()
         
@@ -44,5 +60,8 @@ class ComposeViewController: UIViewController {
         if contentTextView.isFirstResponder {
             contentTextView.resignFirstResponder()
         }
+    }
+    deinit {
+        print(#function, self)
     }
 }

@@ -55,6 +55,30 @@ class DataManager {
         
         NotificationCenter.default.post(name: .memoDidInsert, object: nil)
     }
+    
+    
+    func updateMemo(memo: MEMOEntity, with content: String) {
+        memo.content = content
+        saveContext()
+        
+        NotificationCenter.default.post(name: .memoDidUpdate, object: nil, userInfo: ["memo": memo])
+    }
+    
+    func delete(memo: MEMOEntity) {
+        mainContext.delete(memo)
+        saveContext()
+        
+        if let index = list.firstIndex(of: memo) {
+            list.remove(at: index)
+        }
+        
+        NotificationCenter.default.post(name: .memoDidDelete, object: nil, userInfo: ["memo": memo])
+    }
+    
+    func delete(at memoIndex: Int) {
+        let target = list[memoIndex]
+        delete(memo: target)
+    }
 
     func saveContext () {
         let context = persistentContainer.viewContext
